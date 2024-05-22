@@ -20,6 +20,9 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import '../helper/image_classification_helper.dart';
 
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
@@ -50,6 +53,24 @@ class _GalleryScreenState extends State<GalleryScreen> {
     setState(() {});
   }
 
+  Future<void> downloadFile(String url, String fileName) async {
+    try {
+      // Get the directory to save the file
+      Directory appDocDir = await getApplicationDocumentsDirectory();
+      String savePath = '${appDocDir.path}/$fileName';
+
+      // Create Dio instance
+      Dio dio = Dio();
+
+      // Download the file and save it to the path
+      await dio.download(url, savePath);
+
+      print('File downloaded and saved at: $savePath');
+    } catch (e) {
+      print('Error downloading file: $e');
+    }
+  }
+
   // Process picked image
   Future<void> processImage() async {
     if (imagePath != null) {
@@ -61,6 +82,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
       setState(() {});
       classification = await imageClassificationHelper?.inferenceImage(image!);
       setState(() {});
+
+      // String fileUrl = 'https://ik.imagekit.io/tvlk/blog/2021/09/du-lich-anh-8-1024x576.jpg?tr=dpr-2,w-675';
+      String fileUrl="http://42.112.26.30:5000/download-model";
+
+      String fileName = 'downloaded_file.jpg';
+     await  downloadFile(fileUrl, fileName);
     }
   }
 
